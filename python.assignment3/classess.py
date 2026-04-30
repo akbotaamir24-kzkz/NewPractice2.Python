@@ -71,6 +71,7 @@ class DataAnalyzer:
         gpas = []
         high = 0
 
+        
         for s in self.students:
             try:
                 gpa = float(s["GPA"])
@@ -81,13 +82,27 @@ class DataAnalyzer:
             except:
                 pass
 
+        
+        high_gpa_students = list(filter(lambda s: float(s["GPA"]) > 3.8, self.students))
+
+        
+        gpa_values = list(map(lambda s: float(s["GPA"]), self.students))
+
+        
+        hard_workers = list(filter(lambda s: float(s["study_hours_per_day"]) > 4, self.students))
+
         self.result = {
             "analysis": "GPA Statistics",
             "total_students": len(self.students),
             "average_gpa": round(sum(gpas) / len(gpas), 2),
             "max_gpa": max(gpas),
             "min_gpa": min(gpas),
-            "high_performers": high
+            "high_performers": high,
+
+            
+            "students_gpa_above_3_8": len(high_gpa_students),
+            "first_5_gpa_values": gpa_values[:5],
+            "students_studying_above_4_hours": len(hard_workers)
         }
 
         return self.result
@@ -103,6 +118,14 @@ class DataAnalyzer:
         print("Students GPA>3.5 :", self.result["high_performers"])
         print("-----------------------------")
 
+       
+        print("\n-----------------------------")
+        print("Lambda / Map / Filter")
+        print("-----------------------------")
+        print("Students with GPA > 3.8 :", self.result["students_gpa_above_3_8"])
+        print("GPA values (first 5) :", self.result["first_5_gpa_values"])
+        print("Students studying > 4 hrs :", self.result["students_studying_above_4_hours"])
+        print("-----------------------------")
 
 class ResultSaver:
     def __init__(self, result, output_path):

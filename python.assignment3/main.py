@@ -1,25 +1,24 @@
 from classess import FileManager, DataLoader, DataAnalyzer, ResultSaver
 
 
-def main():
-    fm = FileManager("students.csv")
+fm = FileManager('students.csv')
+if not fm.check_file():
+    print('Stopping program.')
+    exit()
+fm.create_output_folder()
 
-    if not fm.check_file():
-        print("Stopping program.")
-        exit()
+dl = DataLoader('students.csv')
+dl.load()
+dl.preview()
 
-    fm.create_output_folder()
+analyzer = DataAnalyzer(dl.students)
+analyzer.analyse()
+analyzer.print_results()
 
-    dl = DataLoader("students.csv")
-    dl.load()
-    dl.preview()
+saver = ResultSaver(analyzer.result, 'output/result.json')
+saver.save_json()
 
-    analyzer = DataAnalyzer(dl.students)
-    analyzer.analyse()
-    analyzer.print_results()
+print('-' * 30)
 
-    saver = ResultSaver(analyzer.result, "output/result.json")
-    saver.save_json()
-
-
-main()
+wr = DataLoader('wrong.csv')
+wr.load()
