@@ -38,7 +38,7 @@ class DataLoader:
                 reader = csv.DictReader(file)
                 for row in reader:
                     self.students.append(row)
-
+   
             print("Data loaded successfully:", len(self.students), "students")
 
         except FileNotFoundError:
@@ -66,12 +66,25 @@ class DataAnalyzer:
     def __init__(self, students):
         self.students = students
         self.result = {}
+    def analyse(self):
+        print("Not implemented - use a child class")
+
+    def print_results(self):
+        for key, value in self.result.items():
+            print(f"{key}: {value}")
+
+    def __str__(self):
+        return f"DataAnalyzer: base class, {len(self.students)} students"
+    
+
+class GpaAnalyzer(DataAnalyzer):
+    def __init__(self, students):
+        super().__init__(students)
 
     def analyse(self):
         gpas = []
         high = 0
 
-        
         for s in self.students:
             try:
                 gpa = float(s["GPA"])
@@ -79,17 +92,21 @@ class DataAnalyzer:
 
                 if gpa > 3.5:
                     high += 1
+
             except:
                 pass
 
-        
-        high_gpa_students = list(filter(lambda s: float(s["GPA"]) > 3.8, self.students))
+        high_gpa_students = list(
+            filter(lambda s: float(s["GPA"]) > 3.8, self.students)
+        )
 
-        
-        gpa_values = list(map(lambda s: float(s["GPA"]), self.students))
+        gpa_values = list(
+            map(lambda s: float(s["GPA"]), self.students)
+        )
 
-        
-        hard_workers = list(filter(lambda s: float(s["study_hours_per_day"]) > 4, self.students))
+        hard_workers = list(
+            filter(lambda s: float(s["study_hours_per_day"]) > 4, self.students)
+        )
 
         self.result = {
             "analysis": "GPA Statistics",
@@ -99,33 +116,24 @@ class DataAnalyzer:
             "min_gpa": min(gpas),
             "high_performers": high,
 
-            
+
             "students_gpa_above_3_8": len(high_gpa_students),
             "first_5_gpa_values": gpa_values[:5],
             "students_studying_above_4_hours": len(hard_workers)
         }
-
-        return self.result
+        
 
     def print_results(self):
-        print("\n-----------------------------")
-        print("GPA Analysis")
-        print("-----------------------------")
-        print("Total students :", self.result["total_students"])
-        print("Average GPA :", self.result["average_gpa"])
-        print("Highest GPA :", self.result["max_gpa"])
-        print("Lowest GPA :", self.result["min_gpa"])
-        print("Students GPA>3.5 :", self.result["high_performers"])
-        print("-----------------------------")
+        print("\n==========================")
+        print("GPA ANALYSIS REPORT")
+        print("==========================")
 
-       
-        print("\n-----------------------------")
-        print("Lambda / Map / Filter")
-        print("-----------------------------")
-        print("Students with GPA > 3.8 :", self.result["students_gpa_above_3_8"])
-        print("GPA values (first 5) :", self.result["first_5_gpa_values"])
-        print("Students studying > 4 hrs :", self.result["students_studying_above_4_hours"])
-        print("-----------------------------")
+        super().print_results()
+
+        print("==========================")
+
+    def __str__(self):
+        return f"GpaAnalyzer: GPA Statistics, {len(self.students)} students"
 
 class ResultSaver:
     def __init__(self, result, output_path):
@@ -141,3 +149,21 @@ class ResultSaver:
 
         except Exception as e:
             print("Error while saving:", e)
+
+    
+
+class Report:
+    def __init__(self, analyser, saver):
+        self.analyser = analyser
+        self.saver = saver
+
+    def generate(self):
+        print("\nGenerating report...")
+
+        self.analyser.analyse()
+        self.analyser.print_results()
+
+        self.saver.result = self.analyser.result
+        self.saver.save_json()
+
+        print("Report complete.")
